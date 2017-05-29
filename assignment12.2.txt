@@ -1,0 +1,156 @@
+1)Difference between HBASE and HDFS:-
+
+Hadoop is the combination of HDFS and MapReduce whereas HBase is an extension for the Hadoop environment that allows you to quickly read/write data.
+HDFS is meant for storing massive amounts of data across a distributed system whereas HBase is a non-relational database that provides random data access/querying capabilities.
+HBase stores data as key/value pairs as in a column database whereas data in HDFS is stored as flat files.
+
+2)List and explain components of HBASE:-
+
+The three major components of HBASE:
+*HMaster
+*Zookeeper
+*Region Server
+
+HMaster:
+HBase HMaster is a lightweight process that assigns regions to region servers in the Hadoop cluster for load balancing. 
+It manages and monitors the Hadoop Cluster.
+It performs administration and Controlling the failover.
+HMaster also handles the DDL operations.
+HMaster allows the clients to change the schema and any of the metadata operations.
+
+Zookeeper:
+ZooKeeper is a centralized monitoring server that maintains configuration information and provides distributed synchronization. 
+Whenever a client wants to communicate with regions they have to approach Zookeeper first.
+ZooKeeper service keeps track of all the region servers that are there in an HBase cluster- tracking information about the region servers.
+It also establishes client communication with region servers.
+It is responsible for tracking server failure,network partitions and also maintains configuration information.
+
+Region Server:
+These are the worker nodes which handle read, write, update, and delete requests from clients. 
+Region Server process runs on every node in the hadoop cluster.
+Block Cache-This is the read cache,whenever the block cache is full recently used data is evicted.
+MemStore-This is the write cache and stores new data that is not yet written to the disk. 
+Write Ahead Log-WAL is a file that stores new data that is not persisted to permanent storage.
+HFile-It is the actual storage file that stores the rows as sorted key values on a disk.
+
+3)When should we use HBASE, list some of the scenarios for the same:-
+
+HBase is an ideal platform with ACID compliance properties making it a perfect choice for high-scale, real-time applications. 
+It is a column oriented database which supports dynamic database schema. 
+It mainly runs on top of the HDFS and supports MapReduce jobs. 
+It supports other high level languages for data processing and also supports Java APIs so clients can access it easily.
+It supports MapReduce for parallel processing of large volume of data and also supports back up of Hadoop MapReduce jobs in HBase tables.
+
+4)What are the different modes in which Hbase can be run?
+
+HBase runs in two nodes: 
+*Standalone 
+*Distributed
+
+Standalone:
+Standalone mode is the default mode.
+In standalone mode HBase does not use HDFS,instead it uses the local filesystem.
+
+Distributed:
+Distributed modes require an instance of the Hadoop Distributed File System (HDFS).
+Distributed mode is further divided into pseudo-distributed and fully-distributed.
+
+5)Why is zookeeper needed in Hbase?
+
+HBase relies completely on Zookeeper.
+ZooKeeper is a high-performance coordination service for distributed applications like HBase.
+It exposes common services like naming, configuration management, synchronization, and group services.
+HBase by default manages a ZooKeeper "cluster" and it will start and stop the ZooKeeper ensemble as part of the HBase start or stop process.
+HBase uses zookeeper coordination service for master election.
+
+6)Hbase is a schema less database, what does it mean?
+
+This means that the "schema" is stored with the record, not the table.
+In a RDBMS, the schema is defined and that table has the schema.
+In HBase and other BigTable implementations data is labeled with its types.
+  
+7)What is the minimum number of column family every Hbase table should have?
+
+HBase currently does not do well with anything above two or three column families so it is necessary to keep the number of column families in the schema to be low.
+
+8)What is the benefit of using connection pool in Hbase?
+
+For applications which require high-end multithreaded access we can use connection pooling.
+Database connection pooling is used to reuse connection objects and HBase is no exception.
+
+9)What is the difference between memstore and hfile in HBase?
+
+MemStore:
+The MemStore stores updates in memory as sorted KeyValues. 
+There is one MemStore per column family and the updates are sorted per column family.
+These files are created over time and are sorted in the MemStores are flushed as files to disk.
+It saves the last written sequence number so the system knows what was persisted so far.
+ 
+HFile:
+The actual cells or KeyValue instances are stored in a HFile.
+HBase uses multiple HFiles per column family.
+The entire sorted set in MemStore is written to a new HFile in HDFS.
+The highest sequence number is stored as a meta field in each HFile to reflect where persisting has ended and where to continue.
+
+10)Describe compactions in HBase:-
+
+HBase will try to combine HFiles to reduce the maximum number of disk seeks needed for a read and this process is called as compaction.
+Compactions choose some files from a single store in a region and combine them. 
+This process involves reading KeyValues in the input files and writing out any KeyValues that are not deleted and are inside of the time to live and don’t violate the number of versions. 
+The newly created combined file then replaces the input files in the region.
+The ideal compaction would pick the files that will reduce the most seeks in upcoming reads while also choosing files that will need the least amount of IO. 
+There are two kinds of compactions:
+*Minor compactions
+*Major compactions
+
+11)List and explain the logical entities in HBase:-
+
+An HBase table is made of column families which are the logical and physical grouping of columns.
+The columns in one family are stored separately from the columns in another family.
+The column family and column qualifier names are repeated for each row.
+Hence keep the names as short as possible to reduce the amount of data the HBase stores and reads.
+
+12)What will happen if we do not create a row key while inserting the data?
+
+Every row in an HBase table has a unique identifier called its rowkey.
+Every interaction we do in database will start with the RowKey only.
+As the combined key is pre-fixed by the rowkey, it enables the application to define the desired sort order.
+It also allows logical grouping of cells and make sure that all cells with the same rowkey are co-located on the same server.
+Hence if we do not create rowkey while inserting data,it creates data storage order problems.
+
+13)How can filters be applied in HBase and what are the benefits?
+
+Filters are generally used using the Java API, but can be used from HBase Shell for testing and debugging purposes.
+It allows to perform server-side filtering when accessing HBase over Thrift or in the HBase shell.
+
+14)What are the data model operations in hBase?
+
+The different data model operations in HBase include Tables,Rows,Column Families,Columns,Cells and Versions.
+Tables:It is the logical collection of rows stored in separate partitions called Regions.
+Rows:It is one instance of data in a table and is identified by a rowkey.
+Column Families:Data in a row are grouped together as Column Families.
+Columns:It is identified by a Column Qualifier that consists of the Column Family name concatenated with the Column name using a colon.
+Cell:It stores the data and is essentially a unique combination of rowkey,Column Family and the Column.
+Version:The data stored in a cell is versioned and versions of data are identified by the timestamp.
+
+15)How MapReduce can be used with HBase?
+
+HBase can be used as data source as well as data sink for Mapreduce jobs.
+It supports scaling far beyond traditional RDBMS capabilities it supports automatic sharding and massive parallel processing capabilities via Mapreduce.
+
+16)What is regionserver? 
+
+Region servers serve data for reads and writes.
+When accessing the data clients communicate with HBase RegionServers directly. 
+Region Servers are collocated with the HDFS DataNodes which enable data locality for the data served by the RegionServers. 
+
+
+
+
+
+
+
+
+
+
+ 
